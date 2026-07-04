@@ -26,7 +26,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const db = getDatabase();
-  const pageData = db.find((row: any) => row.slug === resolvedParams.slug);
+  const pageData = db.find((row: any) => row.slug === resolvedParams.slug) as any;
   
   if (!pageData) return { title: 'Not Found' };
 
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ImagePage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = await params;
   const db = getDatabase();
-  const pageData = db.find((row: any) => row.slug === resolvedParams.slug);
+  const pageData = db.find((row: any) => row.slug === resolvedParams.slug) as any;
 
   if (!pageData) return <div className="p-10 text-center text-2xl">Page not found</div>;
 
