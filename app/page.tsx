@@ -9,12 +9,12 @@ export default function Home() {
   const filePath = path.join(process.cwd(), 'public', 'final_production_database.csv');
   const fileContents = fs.readFileSync(filePath, 'utf8');
 
-  const { data } = Papa.parse(fileContents, {
-    header: true,
-    skipEmptyLines: true,
-    delimiter: "\t", 
-    transformHeader: (header) => header.trim()
-  });
+const { data } = Papa.parse(fileContents, {
+  header: true,
+  skipEmptyLines: true,
+  delimiter: ",", // Change this from "\t" to ","
+  transformHeader: (header) => header.trim()
+});
 
   // 2. Filter out any empty rows
   const validData = data.filter((row: any) => row.slug && row.cdn_url);
