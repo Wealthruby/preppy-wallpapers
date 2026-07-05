@@ -1,0 +1,40 @@
+name: Hourly Data Engine
+
+# 1. The Cron Job Schedule
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs exactly at the top of every hour
+  workflow_dispatch: # Allows you to trigger it manually by clicking a button
+
+jobs:
+  build-and-update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Python Dependencies
+        run: |
+          pip install pandas requests boto3 pillow
+
+      - name: Run Data Engine
+        env: # Pass the hidden secrets to the Python script
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY: ${{ secrets.R2_ACCESS_KEY }}
+          R2_SECRET_KEY: ${{ secrets.R2_SECRET_KEY }}
+        run: python data_engine.py
+
+      - name: Commit and Push Updated Database
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add public/final_production_database.csv
+          git commit -m "Automated update: Added new generated pages" || echo "No changes to commit"
+          git push

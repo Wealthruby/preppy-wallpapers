@@ -1,45 +1,56 @@
 import fs from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
-import Link from 'next/link';
+import AdBanner from './AdBanner';
+import SearchableGallery from './SearchableGallery';
 
 export default function Home() {
+  // 1. Fetch the data from your CSV
   const filePath = path.join(process.cwd(), 'public', 'final_production_database.csv');
   const fileContents = fs.readFileSync(filePath, 'utf8');
-  
-  const { data } = Papa.parse(fileContents, { 
+
+  const { data } = Papa.parse(fileContents, {
     header: true,
     skipEmptyLines: true,
+    delimiter: "\t", 
     transformHeader: (header) => header.trim()
   });
 
-  // Reverted back to cdn_url for production
+  // 2. Filter out any empty rows
   const validData = data.filter((row: any) => row.slug && row.cdn_url);
 
   return (
-    <main className="max-w-6xl mx-auto p-6 font-sans">
-      <div className="text-center mb-12 mt-8">
-        <h1 className="text-5xl font-bold text-gray-900 mb-4">Preppy Wallpapers</h1>
-        <p className="text-xl text-gray-600">Discover the ultimate collection of aesthetic, high-res downloads.</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans p-8">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header Section */}
+        <header className="mb-10 text-center">
+          <h1 className="text-5xl font-extrabold tracking-tight mb-4 text-gray-900">
+            Preppy Wallpapers
+          </h1>
+          <p className="text-xl text-gray-500">
+            Discover the ultimate collection of aesthetic, high-res downloads.
+          </p>
+        </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {validData.map((item: any, index: number) => (
-          <Link href={`/${item.slug}`} key={index} className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition duration-300 border border-gray-100">
-            <div className="overflow-hidden h-72">
-              <img 
-                src={item.cdn_url?.trim()} 
-                alt={item.title} 
-                className="w-full h-full object-cover group-hover:scale-110 transition duration-500" 
-              />
+        {/* Layout: Main Gallery + Sticky Sidebar */}
+        <div className="flex flex-col lg:flex-row gap-8">
+          
+          {/* Left Side: Search & Gallery (Takes up 75% of screen on desktop) */}
+          <div className="flex-1">
+            <SearchableGallery data={validData} />
+          </div>
+
+          {/* Right Side: Sticky Adsterra Sidebar (Takes up 25% of screen on desktop) */}
+          <div className="w-full lg:w-[320px]">
+            <div className="sticky top-8 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center">
+              <p className="text-xs text-gray-400 mb-2 uppercase tracking-wider">Advertisement</p>
+              <AdBanner />
             </div>
-            <div className="p-5">
-              <h2 className="text-lg font-bold text-gray-800 line-clamp-1">{item.title}</h2>
-              <p className="text-sm text-pink-500 font-semibold mt-2">Download Free &rarr;</p>
-            </div>
-          </Link>
-        ))}
+          </div>
+
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
